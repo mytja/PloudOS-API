@@ -8,7 +8,7 @@ with open("requirements.txt", "r", encoding="utf-8") as req:
 
 setuptools.setup(
     name="PloudOS",
-    version="1.0.0",
+    version="1.0.1",
     author="mytja",
     description="Unofficial API for PloudOS",
     long_description=long_description,

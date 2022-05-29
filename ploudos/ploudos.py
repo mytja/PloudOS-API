@@ -3,7 +3,7 @@ import httpx
 
 
 class PloudOS:
-    def __init__(self, username: str, password: str, server_id: int = 0):
+    def __init__(self, username: str, password: str, server_id: int = 0, queue_timeout: int = 1500):
         """
         This is an unofficial API for PloudOS.
         It can be used to start, stop, queue and confirm servers.
@@ -21,6 +21,7 @@ class PloudOS:
         self.username = username
         self.password = password
         self.server_id = server_id
+        self.queue_timeout = queue_timeout
         self.client = httpx.AsyncClient(timeout=None)
 
     async def login(self):
@@ -63,7 +64,9 @@ class PloudOS:
         """
         This function executes the first step for starting the server from scratch.
 
-        Returns a boolean if the server has successfully started.
+        Returns a boolean.
+        Returns `True` if the server needs confirmation (look at accept_server() function).
+        Returns `False` if the server
 
         Example use:
         ```py
@@ -74,11 +77,15 @@ class PloudOS:
         j = r.json()
         if j["error"]:
             raise Exception(f"Failed at queueing the server. Error: {j}")
-        while True:
+        for i in range(self.queue_timeout):
             await asyncio.sleep(2)
             info = await self.get_server_info()
             if info["status"] == "WAITING_FOR_ACCEPT":
                 return True
+            elif info.get("isStarted") is True and info.get("isRunning") is True:
+                # Server has already started. In this case, accepting is not necessary and this function can safely be cancelled.
+                return False
+        raise Exception("Queue function has timeouted")
     
 
     async def _start(self, r):
@@ -109,7 +116,9 @@ class PloudOS:
 
     async def accept_server(self):
         """
-        When starting the server from scratch, you have to accept server. You call this function after queue() returns True.
+        When starting the server from scratch, you have to accept server.
+        You call this function after queue() returns True.
+        If queue() returns False, this means the server has already started without accepting, so you don't have to call the function.
 
         Once this function ends, your server is now connectable and online.
 

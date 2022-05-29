@@ -1,7 +1,8 @@
 import asyncio
 from ploudos import PloudOS
 
-ploudos = PloudOS("myusername", "mypassword", 0)
+myserverid = 0
+ploudos = PloudOS("myusername", "mypassword", myserverid)
 
 async def main():
     await ploudos.login()
@@ -15,8 +16,11 @@ async def main():
     if cr:
         await ploudos.restart()
     else:
-        print(await ploudos.queue())
-        print(await ploudos.accept_server())
+        q = await ploudos.queue()
+        if q:
+            print("Server accepting is necessary. Executing the command.")
+            await ploudos.accept_server()
+    print(await ploudos.get_server_info())
     await asyncio.sleep(10)
     print(await ploudos.stop())
 
