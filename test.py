@@ -1,15 +1,7 @@
-# PloudOS-API
-An unofficial API for PloudOS.
-
-This library contains a lot of functions and is fully asynchronous.
-
-# Example
-```py
 import asyncio
 from ploudos import PloudOS
 
-myserverid = 0
-ploudos = PloudOS("myusername", "mypassword", myserverid)
+ploudos = PloudOS("myusername", "mypassword", 0)
 
 async def main():
     await ploudos.login()
@@ -28,8 +20,4 @@ async def main():
     await asyncio.sleep(10)
     print(await ploudos.stop())
 
-    # Close the session. Class is unusable after this is called.
-    await ploudos.close()
-
 asyncio.run(main())
-```
